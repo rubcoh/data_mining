@@ -1,6 +1,6 @@
 """
 This program is a web scraper for the website Aliexpress.com.
-It allows to retrieve data on prices, titles, shipping, quantity sold, ratings and sellers or smartphones.
+It allows to retrieve data on prices, titles, shipping, quantity sold, ratings and sellers of smartphones.
 """
 
 # Here are the packages that we use in our program
@@ -10,12 +10,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common import keys
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 import time
 import requests
-from http_request_randomizer.requests.proxy.requestProxy import RequestProxy
-import random
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 # Here is a list of proxies on which we switch regularly
@@ -56,6 +53,7 @@ options.add_experimental_option("prefs", prefs)
 
 
 # Here we setup the webdriver with all the previous options
+#### REPLACE THIS PATH BY YOUR THE PATH OF WEBDRIVER ON YOUR COMPUTER ####
 DRIVER_PATH = "/Users/ruben/Desktop/Softwares/chromedriver"
 driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
 
@@ -68,18 +66,19 @@ ratings = ['Ratings']
 stores = ['Stores']
 
 # Here are the variable part of each xpath on which we will loop to obtain each item of the website
-titles_path = ']/div/div[2]/div/div[1]/a'
-delivery_path = ']/div/div[2]/div/div[3]/span'
-prices_path = ']/div/div[2]/div/div[2]/div[1]/span'
-qty_sold_path = ']/div/div[2]/div/div[7]/div/span/a'
-ratings_path = ']/div/div[2]/div/div[7]/a/span'
-stores_path =']/div/div[2]/div/div[8]/a'
+TITLES_PATH = ']/div/div[2]/div/div[1]/a'
+DELIVERY_PATH = ']/div/div[2]/div/div[3]/span'
+PRICES_PATH = ']/div/div[2]/div/div[2]/div[1]/span'
+QTY_SOLD_PATH = ']/div/div[2]/div/div[7]/div/span/a'
+RATINGS_PATH = ']/div/div[2]/div/div[7]/a/span'
+STORES_PATH =']/div/div[2]/div/div[8]/a'
 
 
 def get_data(my_path, my_list, nb_pages):
     """
     Given a variable part of xpath, a list and a number of pages, this function allows to fill the list with data
-    scraped from the Aliexpress.com smartphones pages
+    scraped from the Aliexpress.com smartphones pages.
+    We used sleep times regularly to wait for the data to load and to maje the behavior of the code more human-like.
     :param my_path:
     :param my_list:
     :param nb_pages:
@@ -95,21 +94,21 @@ def get_data(my_path, my_list, nb_pages):
     driver.get(WEBSITE_PATH)
 
     for pages in range(1, nb_pages + 1):
-        time.sleep(2)
+        time.sleep(1)
         try:
             # Here we close the popup appearing at each opening or refresh of a page
-            close_popup = WebDriverWait(driver, 50).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[7]/div[2]/div/a")))
+            close_popup = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[7]/div[2]/div/a")))
             close_popup.click()
         except TimeoutException:
             pass
-
+        # The items are displayed in a grid of 12 rows and 5 columns
         for row in range(1, 13):
             for col in range(1, 6):
                 try:
-                    # Here we scrape the data following a grid of items on the page (nb_rows X nb_columns)
-                    element = WebDriverWait(driver, 50).until(EC.element_to_be_clickable((By.XPATH,'//*[@id="root"]/div/div/div[2]/div[2]/div/div[2]/ul/div[' + str(row) + ']/li[' + str(col) + my_path)))
+                    # Here we scrape the data following a grid of items on the page (nb_rows X nb_columns) and append each element to a list
+                    element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH,'//*[@id="root"]/div/div/div[2]/div[2]/div/div[2]/ul/div[' + str(row) + ']/li[' + str(col) + my_path)))
                     driver.execute_script("arguments[0].scrollIntoView(true);", element)
-                    time.sleep(2)
+                    time.sleep(1)
                     my_list.append(element.text)
                     print(f"Found element {row}X{col} of page {pages} while scraping {my_list[0]}")
                 except Exception:
@@ -117,8 +116,8 @@ def get_data(my_path, my_list, nb_pages):
                     my_list.append(None)
         time.sleep(2)
         try:
-            # Here go to the next page
-            page_number = WebDriverWait(driver, 50).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div[2]/div[2]/div/div[3]/div/div[1]/div/div/button[' + str(pages) + ']')))
+            # Here we go to the next page
+            page_number = WebDriverWait(driver, 80).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div[2]/div[2]/div/div[3]/div/div[1]/div/div/button[' + str(pages) + ']')))
             page_number.click()
         except Exception:
             print("Couldn't reach the page button")
@@ -126,19 +125,14 @@ def get_data(my_path, my_list, nb_pages):
 
 
 #Here we run the get_data() function on each kind of items we want to scrape from the website
-NB_PAGES = 5
+NB_PAGES = 2
 
-get_data(titles_path, titles, NB_PAGES)
-time.sleep(random.randint(1, 2))
-get_data(delivery_path, delivery, NB_PAGES)
-time.sleep(random.randint(1, 2))
-get_data(prices_path, prices, NB_PAGES)
-time.sleep(random.randint(1, 2))
-get_data(qty_sold_path, qty_sold, NB_PAGES)
-time.sleep(random.randint(1, 2))
-get_data(ratings_path, ratings, NB_PAGES)
-time.sleep(random.randint(1, 2))
-get_data(stores_path, stores, NB_PAGES)
+get_data(TITLES_PATH, titles, NB_PAGES)
+get_data(DELIVERY_PATH, delivery, NB_PAGES)
+get_data(PRICES_PATH, prices, NB_PAGES)
+get_data(QTY_SOLD_PATH, qty_sold, NB_PAGES)
+get_data(RATINGS_PATH, ratings, NB_PAGES)
+get_data(STORES_PATH, stores, NB_PAGES)
 
 # Finally, we create a pandas dataframe with the lists we created and we store it into a csv file
 df = pd.DataFrame(
@@ -149,5 +143,7 @@ df = pd.DataFrame(
     'ratings': ratings,
     'stores': stores,
     })
+
+#### REPLACE THIS PATH BY THE PATH WHERE YOU WANT TO SAVE THE FILE ####
 df.to_csv("/Users/ruben/Desktop/df.csv")
 print(df)
