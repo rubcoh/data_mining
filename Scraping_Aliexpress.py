@@ -42,6 +42,8 @@ def switch_proxy(proxies):
 
 # Here we set our browser preferences and options
 options = Options()
+# Here we set our browser to incognito
+options.add_argument("--incognito")
 # Here we setup a user-agent
 options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7")
 # Here we decide whether if we run the program headless or not
@@ -55,7 +57,7 @@ options.add_experimental_option("prefs", prefs)
 
 # Here we setup the webdriver with all the previous options
 #### REPLACE THIS PATH BY YOUR THE PATH OF WEBDRIVER ON YOUR COMPUTER ####
-DRIVER_PATH = "/Users/ruben/Desktop/Softwares/chromedriver"
+DRIVER_PATH = "C:\webdrivers\chromedriver"
 driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
 
 # Here we initialize a list for each type of data we want to scrape on the website
@@ -86,7 +88,7 @@ def get_data(my_path, my_list, nb_pages):
     :return: None
     """
     # Here we switch proxy
-    switch_proxy(proxies)
+#    switch_proxy(proxies)
     # Here is the path of the page on which we want to scrape data
     WEBSITE_PATH = "https://fr.aliexpress.com/category/205006047/cellphones.html"
     # Here we maximize the window to display and scrape more content
@@ -94,11 +96,11 @@ def get_data(my_path, my_list, nb_pages):
     # Here we go to the home page
     driver.get(WEBSITE_PATH)
 
-    for pages in range(1, nb_pages + 1):
+    for pages in range(1, 2):
         time.sleep(1)
         try:
             # Here we close the popup appearing at each opening or refresh of a page
-            close_popup = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[7]/div[2]/div/a")))
+            close_popup = WebDriverWait(driver, 80).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[7]/div[2]/div/a")))
             close_popup.click()
         except TimeoutException:
             pass
@@ -106,6 +108,7 @@ def get_data(my_path, my_list, nb_pages):
         for row in range(1, 13):
             for col in range(1, 6):
                 try:
+
                     # Here we scrape the data following a grid of items on the page (nb_rows X nb_columns) and append each element to a list
                     element = WebDriverWait(driver, 80).until(EC.element_to_be_clickable((By.XPATH,'//*[@id="root"]/div/div/div[2]/div[2]/div/div[2]/ul/div[' + str(row) + ']/li[' + str(col) + my_path)))
                     driver.execute_script("arguments[0].scrollIntoView(true);", element)
@@ -130,21 +133,21 @@ NB_PAGES = 1
 
 get_data(TITLES_PATH, titles, NB_PAGES)
 get_data(DELIVERY_PATH, delivery, NB_PAGES)
-get_data(PRICES_PATH, prices, NB_PAGES)
-get_data(QTY_SOLD_PATH, qty_sold, NB_PAGES)
-get_data(RATINGS_PATH, ratings, NB_PAGES)
-get_data(STORES_PATH, stores, NB_PAGES)
+#get_data(PRICES_PATH, prices, NB_PAGES)
+#get_data(QTY_SOLD_PATH, qty_sold, NB_PAGES)
+#get_data(RATINGS_PATH, ratings, NB_PAGES)
+#get_data(STORES_PATH, stores, NB_PAGES)
 
 # Finally, we create a pandas dataframe with the lists we created and we store it into a csv file
 df = pd.DataFrame(
     {'titles': titles,
-     'delivery': delivery,
-     'prices': prices,
-    'qty_sold': qty_sold,
-    'ratings': ratings,
-    'stores': stores,
+     'delivery': delivery
+#     'prices': prices,
+#    'qty_sold': qty_sold,
+#    'ratings': ratings,
+#    'stores': stores,
     })
 
 #### REPLACE THIS PATH BY THE PATH WHERE YOU WANT TO SAVE THE FILE ####
-df.to_csv("/Users/ruben/Desktop/df.csv")
+df.to_csv(r"\C:\Users\yaniv\OneDrive\Desktop\df.csv")
 print(df)
