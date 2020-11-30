@@ -4,6 +4,7 @@ import datetime
 from datetime import date
 import pandas as pd
 import random
+import my_config as CFG
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -29,10 +30,10 @@ df5["SupplierToProduct_id"] = df5.index + 11111
 print(df5)
 
 try:
-    connection = mysql.connector.connect(host='localhost',
-                                         database='aliexpress',
-                                         user='root',
-                                         password='110185')
+    connection = mysql.connector.connect(host=CFG.your_localhost,
+                                         database=CFG.database_name,
+                                         user=CFG.root,
+                                         password=CFG.password)
     if connection.is_connected():
         db_Info = connection.get_server_info()
         print("Connected to MySQL Server version ", db_Info)
