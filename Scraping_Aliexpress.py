@@ -35,8 +35,8 @@ options.headless = CFG.HEADLESS
 # Here we disable notifications
 options.add_argument(CFG.DISABLE_NOTIFICATIONS)
 # Here we disable pictures display
-prefs = {"profile.managed_default_content_settings.images": 2}
-options.add_experimental_option("prefs", prefs)
+#prefs = {"profile.managed_default_content_settings.images": 2}
+#options.add_experimental_option("prefs", prefs)
 
 options.add_argument(CFG.INCOGNITO)
 
@@ -81,7 +81,7 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
     """
 
     # Here we switch proxy
-    switch_proxy(proxies)
+    #switch_proxy(proxies)
     # Here is the path of the page on which we want to scrape data
     WEBSITE_PATH = "https://fr.aliexpress.com/premium/category/205006120.html?CatId=205006120"
     # Here we maximize the window to display and scrape more content
@@ -89,17 +89,10 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
     # Here we go to the home page
     driver.get(WEBSITE_PATH)
 
-    time.sleep(3)
-    driver.refresh()
 
     products = ['titles', 'delivery', 'prices', 'qty_sold', 'ratings', 'stores', 'discounts']
     suppliers = ['nb_followers', 'name', 'store_no', 'supplier_country', 'opening_date']
-    specifications = ['brand_name', 'video_memory_capacity', 'interface_type', 'cooler_type', 'stream_processors',
-                      'chip_process',
-                      'model_number', 'pixel_pipelines', 'launch_date', 'output_interface_type1',
-                      'output_interface_type2',
-                      'memory_interface']
-
+    reviews = ['reviews_1_stars', 'reviews_2_stars', 'reviews_3_stars', 'reviews_4_stars', 'reviews_5_stars']
     p = driver.current_window_handle
     driver.switch_to.window(p)
 
@@ -119,7 +112,7 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
         for row in range(1, 3):
             for col in range(1, 3):
 
-                if identifier in suppliers or identifier in specifications:
+                if identifier in suppliers or identifier in reviews:
 
                     try:
                         # Click on the picture of the product
@@ -150,25 +143,13 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
                         time.sleep(3)
                         driver.refresh()
                         # Here we close the popup appearing at each opening or refresh of a page
-                        close_popup = WebDriverWait(driver, 5).until(
-                            EC.element_to_be_clickable((By.XPATH, "//*[@ id='3607353940']/div/div/img")))
+                        close_popup = WebDriverWait(driver, 30).until(
+                            EC.element_to_be_clickable((By.XPATH, "//*[@id='3607353940']/div/div/img")))
                         close_popup.click()
                     except TimeoutException:
                         pass
 
-                    #Scraping data
-
-                    if identifier in specifications:
-                        try:
-                            specifications_button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='product-detail']/div[2]/div/div[1]/ul/li[3]/div/span")))
-                            driver.execute_script("arguments[0].scrollIntoView(true);", specifications_button)
-                            time.sleep(3)
-                            specifications_button.click()
-                            time.sleep(3)
-                        except Exception:
-                            print(f"Unable to click specification button while scraping {identifier}")
-
-                    elif identifier in suppliers:
+                    if identifier in suppliers:
                         try:
                             element_to_hover = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='store-info-wrap']/div[1]/h3/a")))
                             hover = ActionChains(driver).move_to_element(element_to_hover)
@@ -178,21 +159,27 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
 
 
                 try:
-                    if identifier in suppliers or identifier in specifications:
+                    if identifier in suppliers or identifier in reviews:
                         element = WebDriverWait(driver, 50).until(EC.element_to_be_clickable((By.XPATH, my_path)))
+                        driver.execute_script("arguments[0].scrollIntoView(true);", element)
+                        time.sleep(3)
+                        my_list.append(element.text)
+
                     elif identifier in products:
                         element = WebDriverWait(driver, 50).until(EC.element_to_be_clickable((By.XPATH,
                                                                                               '//*[@id="root"]/div/div/div[2]/div[2]/div/div[2]/ul/div[' + str(row) + ']/li[' + str(col) + my_path)))
-                    driver.execute_script("arguments[0].scrollIntoView(true);", element)
-                    time.sleep(3)
-                    my_list.append(element.text)
+                        driver.execute_script("arguments[0].scrollIntoView(true);", element)
+                        time.sleep(3)
+                        my_list.append(element.text)
+                        time.sleep(3)
+                        my_list.append(element.text)
                     print(f"Found element {row}X{col} of page {pages} while scraping {identifier}")
                     print("The element is", element.text)
                 except Exception:
                     print(f"Couldn't find element {row}X{col} of page {pages} while scraping {identifier}")
                     my_list.append(None)
 
-                if identifier in suppliers or identifier in specifications:
+                if identifier in suppliers or identifier in reviews:
 
                     #driver.close()
                     driver.switch_to.window(p)
@@ -224,11 +211,8 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
 
 def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, is_qty_sold=False, is_ratings=False,
                  is_stores=False, is_discounts=False, is_nb_followers = False, is_name = False, is_store_no = False,
-                 is_supplier_country = False, is_opening_date = False, is_brand_name=False,
-                 is_video_memory_capacity = False, is_interface_type = False, is_cooler_type = False,
-                 is_stream_processors = False, is_chip_process = False, is_model_number = False,
-                 is_pixel_pipelines = False, is_launch_date = False, is_output_interface_type1 = False,
-                 is_output_interface_type2 = False, is_memory_interface = False):
+                 is_supplier_country = False, is_opening_date = False, is_reviews_1_stars=False, is_reviews_2_stars=False,
+                 is_reviews_3_stars=False, is_reviews_4_stars=False, is_reviews_5_stars=False):
 
 
     # Here we initialize a list for each type of data we want to scrape on the website
@@ -249,6 +233,7 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     supplier_country = []
     opening_date = []
 
+    """
     # Product specifications
     brand_name = []
     video_memory_capacity = []
@@ -262,17 +247,16 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     output_interface_type1 = []
     output_interface_type2 = []
     memory_interface = []
-
-
-    """  # Reviews
-    review_country = []
-    stars = []
-    is_image = []
-    useful_yes = []
-    useful_no = []
-    date = []
-    text = []
     """
+
+    # Reviews
+    reviews_1_stars = []
+    reviews_2_stars = []
+    reviews_3_stars = []
+    reviews_4_stars = []
+    reviews_5_stars = []
+
+
 
     # Here are the variable part of each xpath on which we will loop to obtain each item of the website
 
@@ -291,7 +275,7 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     STORE_NO_PATH = '//*[@id="store-dsr-balloon-tips"]/div/div/div/div[1]/span[1]'
     SUPPLIER_COUNTRY_PATH = '//*[@id="store-dsr-balloon-tips"]/div/div/div/div[1]/span[2]'
     OPENING_DATE_PATH = '//*[@id="store-dsr-balloon-tips"]/div/div/div/div[1]/span[3]/em'
-
+    """
     # Product specifications
     BRAND_NAME_PATH = '//*[@id="product-detail"]/div[2]/div/div[2]/div[4]/div/ul/li[1]/span[2]'
     VIDEO_MEMORY_CAPACITY_PATH = '//*[@id="product-detail"]/div[2]/div/div[2]/div[4]/div/ul/li[23]/span[2]'
@@ -305,17 +289,18 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     OUTPUT_INTERFACE_TYPE1_PATH = '//*[@id="product-detail"]/div[2]/div/div[2]/div[4]/div/ul/li[16]/span[2]'
     OUTPUT_INTERFACE_TYPE2_PATH = '//*[@id="product-detail"]/div[2]/div/div[2]/div[4]/div/ul/li[18]/span[2]'
     MEMORY_INTERFACE_PATH = '//*[@id="product-detail"]/div[2]/div/div[2]/div[4]/div/ul/li[7]/span[2]'
+    """
 
-    """
+
     # Reviews
-    REVIEW_COUNTRY_PATH = '//*[@id="transction-feedback"]/div[5]/div[1]/div[1]/div/b'
-    STARS_PATH = '//*[@id="transction-feedback"]/div[2]/div/span/b'
-    IS_IMAGE_PATH = '//*[@id="transction-feedback"]/div[5]/div[2]/div[2]/div[3]/dl/dd/ul/li/img'
-    USEFUL_YES_PATH = '//*[@id="transction-feedback"]/div[5]/div[1]/div[2]/div[3]/dl/div/span[2]/span[2]'
-    USEFUL_NO_PATH = '//*[@id="transction-feedback"]/div[5]/div[1]/div[2]/div[3]/dl/div/span[3]/span[2]'
-    DATE_PATH = '//*[@id="transction-feedback"]/div[5]/div[1]/div[2]/div[3]/dl/dt/span[2]'
-    TEXT_PATH = '//*[@id="transction-feedback"]/div[5]/div[3]/div[2]/div[3]/dl/dt/span[1]'
-    """
+    REVIEW_1_STARS_PATH = '//*[@id="transction-feedback"]/div[2]/ul/li[5]/span[3]'
+    REVIEW_2_STARS_PATH = '//*[@id="transction-feedback"]/div[2]/ul/li[4]/span[3]'
+    REVIEW_3_STARS_PATH = '//*[@id="transction-feedback"]/div[2]/ul/li[3]/span[3]'
+    REVIEW_4_STARS_PATH = '//*[@id="transction-feedback"]/div[2]/ul/li[2]/span[3]'
+    REVIEW_5_STARS_PATH = '//*[@id="transction-feedback"]/div[2]/ul/li[1]/span[3]'
+
+
+
 
     IMAGE_PATH = ']/div/div[1]/div/a/img'
 
@@ -323,7 +308,8 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
 
     len_product = 0
     len_supplier = 0
-    len_specification = 0
+    #len_specification = 0
+    len_reviews = 0
 
     if is_titles:
         get_specific_data(TITLES_PATH, titles, nb_pages, 'titles')
@@ -380,7 +366,7 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
 
    ############################################################################################
    ############################################################################################
-
+    """
     if is_brand_name:
         get_specific_data(BRAND_NAME_PATH, brand_name, nb_pages, 'brand_name')
         len_specification = len(brand_name)
@@ -428,12 +414,38 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     if is_memory_interface:
         get_specific_data(MEMORY_INTERFACE_PATH, memory_interface, nb_pages, 'memory_interface')
         len_specification = len(memory_interface)
+    """
+
+    if is_reviews_1_stars:
+        get_specific_data(REVIEW_1_STARS_PATH, reviews_1_stars, nb_pages, 'reviews_1_stars')
+        len_reviews = len(reviews_1_stars)
+
+    if is_reviews_2_stars:
+        get_specific_data(REVIEW_2_STARS_PATH, reviews_2_stars, nb_pages, 'reviews_2_stars')
+        len_reviews = len(reviews_2_stars)
+
+    if is_reviews_3_stars:
+        get_specific_data(REVIEW_3_STARS_PATH, reviews_3_stars, nb_pages, 'reviews_3_stars')
+        len_reviews = len(reviews_3_stars)
+
+    if is_reviews_4_stars:
+        get_specific_data(REVIEW_4_STARS_PATH, reviews_4_stars, nb_pages, 'reviews_4_stars')
+        len_reviews = len(reviews_4_stars)
+
+    if is_reviews_5_stars:
+        get_specific_data(REVIEW_5_STARS_PATH, reviews_5_stars, nb_pages, 'reviews_5_stars')
+        len_reviews = len(reviews_5_stars)
+
+
+
+
+
+
+
 
     products = [titles, delivery, prices, qty_sold, ratings, stores, discounts]
     suppliers = [nb_followers, name, store_no, supplier_country, opening_date]
-    specifications = [brand_name, video_memory_capacity, interface_type, cooler_type, stream_processors, chip_process,
-                      model_number, pixel_pipelines, launch_date, output_interface_type1, output_interface_type2,
-                      memory_interface]
+    reviews = [reviews_1_stars, reviews_2_stars, reviews_3_stars, reviews_4_stars, reviews_5_stars]
 
 
     PRODUCTS_SIZE = len_product
@@ -450,10 +462,10 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
             item[:] = None
             item.tolist()
 
-    SPECIFICATION_SIZE = len_specification
-    for item in specifications:
+    REVIEWS_SIZE = len_reviews
+    for item in reviews:
         if len(item) < 2:
-            item = np.empty(SPECIFICATION_SIZE)
+            item = np.empty(REVIEWS_SIZE)
             item[:] = None
             item.tolist()
 
@@ -486,7 +498,7 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     df_supplier = pd.DataFrame.from_dict(dict_supplier, orient='index')
     df_supplier = df_supplier.transpose()
 
-
+    """
     dict_specification = {
             'brand_name': np.array(brand_name),
             'video_memory_capacity': np.array(video_memory_capacity),
@@ -505,13 +517,31 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     df_specification = pd.DataFrame.from_dict(dict_specification, orient='index')
     df_specification = df_specification.transpose()
 
+    """
+
+    dict_reviews = {
+                'reviews_1_stars': np.array(reviews_1_stars),
+                'reviews_2_stars': np.array(reviews_2_stars),
+                'reviews_3_stars': np.array(reviews_3_stars),
+                'reviews_4_stars': np.array(reviews_4_stars),
+                'reviews_5_stars': np.array(reviews_5_stars),
+
+                }
+
+    df_reviews = pd.DataFrame.from_dict(dict_reviews, orient='index')
+    df_reviews = df_reviews.transpose()
+
+
+
+
+
     random_number = np.random.randint(1, 1000000)
     df_product.to_csv("products_" + str(random_number) + ".csv")
     df_supplier.to_csv("suppliers_" + str(random_number) + ".csv")
-    df_specification.to_csv("specifications_" + str(random_number) + ".csv")
+    df_reviews.to_csv("reviews" + str(random_number) + ".csv")
     print(df_product)
     print(df_supplier)
-    print(df_specification)
+    print(df_reviews)
 
 
 
@@ -529,23 +559,16 @@ is_store_no = False
 is_supplier_country = False
 is_opening_date = False
 
-is_brand_name = False
-is_video_memory_capacity = False
-is_interface_type = False
-is_stream_processors = False
-is_chip_process = False
-is_model_number = False
-is_cooler_type = False
-is_pixel_pipelines = False
-is_launch_date = False
-is_output_interface_type1 = False
-is_output_interface_type2 = False
-is_memory_interface = False
+is_reviews_1_stars = False
+is_reviews_2_stars = False
+is_reviews_3_stars = False
+is_reviews_4_stars = False
+is_reviews_5_stars = False
 
 my_parser = argparse.ArgumentParser(description="""This is a Command line interface """)
 my_parser.add_argument('--nb_pages', help='number of pages to scrap', type=int, required=True)
 my_parser.add_argument('--Product_Table', help='Scrap Product Table', type=bool, required=False)
-my_parser.add_argument('--Product_Spec_Table', help='Scrap Product Spec Title', type=bool, required=False)
+my_parser.add_argument('--Reviews_Table', help='Scrap Reviews Title', type=bool, required=False)
 my_parser.add_argument('--Supplier_Table', help='Scrap Supplier Table', type=bool, required=False)
 args = my_parser.parse_args()
 
@@ -563,26 +586,16 @@ if args.Supplier_Table == True:
     is_store_no = True
     is_supplier_country = True
     is_opening_date = True
-if args.Product_Spec_Table == True:
-    is_brand_name = True
-    is_video_memory_capacity = True
-    is_interface_type = True
-    is_stream_processors = True
-    is_chip_process = True
-    is_cooler_type = True
-    is_model_number = True
-    is_pixel_pipelines = True
-    is_launch_date = True
-    is_output_interface_type1 = True
-    is_output_interface_type2 = True
-    is_memory_interface = True
+if args.Reviews_Table == True:
+    is_reviews_1_stars = True
+    is_reviews_2_stars = True
+    is_reviews_3_stars = True
+    is_reviews_4_stars = True
+    is_reviews_5_stars = True
 
 
 scrape_store(args.nb_pages, is_titles, is_delivery, is_prices, is_qty_sold, is_ratings,
                  is_stores, is_discounts, is_nb_followers, is_name, is_store_no,
-                 is_supplier_country, is_opening_date, is_brand_name,
-                 is_video_memory_capacity, is_interface_type, is_cooler_type,
-                 is_stream_processors, is_chip_process, is_model_number,
-                 is_pixel_pipelines, is_launch_date, is_output_interface_type1,
-                 is_output_interface_type2, is_memory_interface)
+                 is_supplier_country, is_opening_date, is_reviews_1_stars, is_reviews_2_stars, is_reviews_3_stars,
+             is_reviews_4_stars ,is_reviews_5_stars)
 

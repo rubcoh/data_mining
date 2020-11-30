@@ -1,5 +1,5 @@
 # Here are the options of navigation
-HEADLESS = True
+HEADLESS = False
 DISABLE_NOTIFICATIONS = "--disable-notifications"
 INCOGNITO = "--incognito"
 # Here is a list of proxies on which we switch regularly
