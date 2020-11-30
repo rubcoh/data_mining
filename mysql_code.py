@@ -4,6 +4,7 @@ import datetime
 from datetime import date
 import pandas as pd
 import random
+import my_config as CFG
 
 today = date.today()
 date_1 = datetime.datetime.strptime(str(today), "%Y-%m-%d")
@@ -93,10 +94,10 @@ df5 = pd.DataFrame(SupplierToProduct)
 print(df5)
 
 try:
-    connection = mysql.connector.connect(host='localhost',
-                                         database='aliexpress',
-                                         user='root',
-                                         password='110185')
+    connection = mysql.connector.connect(host=CFG.your_localhost,
+                                         database=CFG.database_name,
+                                         user=CFG.root,
+                                         password=CFG.password)
     if connection.is_connected():
         db_Info = connection.get_server_info()
         print("Connected to MySQL Server version ", db_Info)

@@ -13,24 +13,37 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import time
 import random
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from tqdm import tqdm
-import argparse
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
+import argparse
 
 
 
-"""
-# Command line arguments
-parser = argparse.ArgumentParser(description= " PLease input the necessary arguments")
-parser.add_argument("nb_pages", help="Number of pages to scrape", type=int)
-parser.add_argument("items", help="Items to scrape", type=list)
-args = parser.parse_args()
-"""
-
+# Here we import the config file
+import my_config as CFG
 
 # Here is a list of proxies on which we switch regularly
-proxies = ['195.154.207.39:3128']
+proxies = CFG.PROXIES
+
+# Here we set our browser preferences and options
+options = Options()
+# Here we setup a user-agent
+options.add_argument(CFG.USER_AGENT_PATH)
+
+# Here we decide whether if we run the program headless or not
+options.headless = CFG.HEADLESS
+# Here we disable notifications
+options.add_argument(CFG.DISABLE_NOTIFICATIONS)
+# Here we disable pictures display
+prefs = {"profile.managed_default_content_settings.images": 2}
+options.add_experimental_option("prefs", prefs)
+
+options.add_argument(CFG.INCOGNITO)
+
+# Here we setup the webdriver with all the previous options
+#### REPLACE THIS PATH BY YOUR THE PATH OF WEBDRIVER ON YOUR COMPUTER ####
+DRIVER_PATH = CFG.DRIVER_PATH
+driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
 
 
 def switch_proxy(proxies):
@@ -53,26 +66,7 @@ def switch_proxy(proxies):
     print(f"Proxy switched to {PROXY}")
 
 
-# Here we set our browser preferences and options
-options = Options()
-# Here we setup a user-agent
-# options.add_argument("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36")
-options.add_argument(
-    "user-agent=Mozilla/5.1 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/8.1.2 Safari/601.7.7")
 
-# Here we decide whether if we run the program headless or not
-options.headless = True
-# Here we disable notifications
-options.add_argument("--disable-notifications")
-# Here we disable pictures display
-# prefs = {"profile.managed_default_content_settings.images": 2}
-# options.add_experimental_option("prefs", prefs)
-options.add_argument("--incognito")
-
-# Here we setup the webdriver with all the previous options
-#### REPLACE THIS PATH BY YOUR THE PATH OF WEBDRIVER ON YOUR COMPUTER ####
-DRIVER_PATH = "/Users/finance/Desktop/chromedriver"
-driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
 
 
 def get_specific_data(my_path, my_list, nb_pages, identifier):
@@ -89,7 +83,7 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
     # Here we switch proxy
     switch_proxy(proxies)
     # Here is the path of the page on which we want to scrape data
-    WEBSITE_PATH = "https://www.aliexpress.com/category/708044/graphics-cards.html?spm=a2g0o.home.104.7.17ad2145mvZMgr"
+    WEBSITE_PATH = "https://fr.aliexpress.com/premium/category/205006120.html?CatId=205006120"
     # Here we maximize the window to display and scrape more content
     driver.maximize_window()
     # Here we go to the home page
@@ -107,7 +101,9 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
                       'memory_interface']
 
     p = driver.current_window_handle
-    driver.execute_script("window.scrollTo(0, -document.body.scrollHeight);")
+    driver.switch_to.window(p)
+
+    #driver.execute_script("window.scrollTo(0, -document.body.scrollHeight);")
     for pages in range(1, nb_pages + 1):
         time.sleep(3)
         driver.refresh()
@@ -119,10 +115,8 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
         except TimeoutException:
             pass
 
-
-
         # The items are displayed in a grid of 12 rows and 5 columns
-        for row in tqdm(range(1, 3)):
+        for row in range(1, 3):
             for col in range(1, 3):
 
                 if identifier in suppliers or identifier in specifications:
@@ -162,30 +156,40 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
                     except TimeoutException:
                         pass
 
-
-                try:
                     #Scraping data
 
                     if identifier in specifications:
-                        specifications_button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='product-detail']/div[2]/div/div[1]/ul/li[3]/div/span")))
-                        driver.execute_script("arguments[0].scrollIntoView(true);", specifications_button)
-                        time.sleep(3)
-                        specifications_button.click()
-                        time.sleep(3)
+                        try:
+                            specifications_button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='product-detail']/div[2]/div/div[1]/ul/li[3]/div/span")))
+                            driver.execute_script("arguments[0].scrollIntoView(true);", specifications_button)
+                            time.sleep(3)
+                            specifications_button.click()
+                            time.sleep(3)
+                        except Exception:
+                            print(f"Unable to click specification button while scraping {identifier}")
 
                     elif identifier in suppliers:
-                        element_to_hover = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='store-info-wrap']/div[1]/h3/a")))
-                        hover = ActionChains(driver).move_to_element(element_to_hover)
-                        hover.perform()
+                        try:
+                            element_to_hover = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='store-info-wrap']/div[1]/h3/a")))
+                            hover = ActionChains(driver).move_to_element(element_to_hover)
+                            hover.perform()
+                        except Exception:
+                            print(f"Unable to hover while scraping {identifier}")
 
-                    element = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, my_path)))
+
+                try:
+                    if identifier in suppliers or identifier in specifications:
+                        element = WebDriverWait(driver, 50).until(EC.element_to_be_clickable((By.XPATH, my_path)))
+                    elif identifier in products:
+                        element = WebDriverWait(driver, 50).until(EC.element_to_be_clickable((By.XPATH,
+                                                                                              '//*[@id="root"]/div/div/div[2]/div[2]/div/div[2]/ul/div[' + str(row) + ']/li[' + str(col) + my_path)))
                     driver.execute_script("arguments[0].scrollIntoView(true);", element)
-                    time.sleep(1)
+                    time.sleep(3)
                     my_list.append(element.text)
-                    print(f"Found element {row}X{col} of page {pages}")
+                    print(f"Found element {row}X{col} of page {pages} while scraping {identifier}")
                     print("The element is", element.text)
                 except Exception:
-                    print(f"Couldn't find element {row}X{col} of page {pages}")
+                    print(f"Couldn't find element {row}X{col} of page {pages} while scraping {identifier}")
                     my_list.append(None)
 
                 if identifier in suppliers or identifier in specifications:
@@ -204,7 +208,7 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
                     except TimeoutException:
                         pass
 
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            driver.execute_script("window.scrollTo(0, -document.body.scrollHeight);")
 
         time.sleep(5)
         try:
@@ -319,7 +323,35 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
 
     len_product = 0
     len_supplier = 0
+    len_specification = 0
 
+    if is_titles:
+        get_specific_data(TITLES_PATH, titles, nb_pages, 'titles')
+        len_product = len(titles)
+
+    if is_delivery:
+        get_specific_data(DELIVERY_PATH, delivery, nb_pages, 'delivery')
+        len_product = len(delivery)
+
+    if is_prices:
+        get_specific_data(PRICES_PATH, prices, nb_pages, 'prices')
+        len_product = len(prices)
+
+    if is_qty_sold:
+        get_specific_data(QTY_SOLD_PATH, qty_sold, nb_pages, 'qty_sold')
+        len_product = len(qty_sold)
+
+    if is_ratings:
+        get_specific_data(RATINGS_PATH, ratings, nb_pages, 'ratings')
+        len_product = len(ratings)
+
+    if is_stores:
+        get_specific_data(STORES_PATH, stores, nb_pages, 'stores')
+        len_product = len(stores)
+
+    if is_discounts:
+        get_specific_data(DISCOUNTS_PATH, discounts, nb_pages, 'discounts')
+        len_product = len(discounts)
 
     if is_nb_followers:
         get_specific_data(NB_FOLLOWERS_PATH, nb_followers, nb_pages, 'nb_followers')
@@ -397,34 +429,6 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
         get_specific_data(MEMORY_INTERFACE_PATH, memory_interface, nb_pages, 'memory_interface')
         len_specification = len(memory_interface)
 
-    if is_titles:
-        get_specific_data(TITLES_PATH, titles, nb_pages, 'titles')
-        len_product = len(titles)
-
-    if is_delivery:
-        get_specific_data(DELIVERY_PATH, delivery, nb_pages, 'delivery')
-        len_product = len(delivery)
-
-    if is_prices:
-        get_specific_data(PRICES_PATH, prices, nb_pages, 'prices')
-        len_product = len(prices)
-
-    if is_qty_sold:
-        get_specific_data(QTY_SOLD_PATH, qty_sold, nb_pages, 'qty_sold')
-        len_product = len(qty_sold)
-
-    if is_ratings:
-        get_specific_data(RATINGS_PATH, ratings, nb_pages, 'ratings')
-        len_product = len(ratings)
-
-    if is_stores:
-        get_specific_data(STORES_PATH, stores, nb_pages, 'stores')
-        len_product = len(stores)
-
-    if is_discounts:
-        get_specific_data(DISCOUNTS_PATH, discounts, nb_pages, 'discounts')
-        len_product = len(discounts)
-
     products = [titles, delivery, prices, qty_sold, ratings, stores, discounts]
     suppliers = [nb_followers, name, store_no, supplier_country, opening_date]
     specifications = [brand_name, video_memory_capacity, interface_type, cooler_type, stream_processors, chip_process,
@@ -501,21 +505,84 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     df_specification = pd.DataFrame.from_dict(dict_specification, orient='index')
     df_specification = df_specification.transpose()
 
-    #### REPLACE THIS PATH BY THE PATH WHERE YOU WANT TO SAVE THE FILE ####
-
-    df_product.to_csv("/Users/finance/Desktop/df_product.csv")
-    df_supplier.to_csv("/Users/finance/Desktop/df_supplier.csv")
-    df_specification.to_csv("/Users/finance/Desktop/df_specification.csv")
+    random_number = np.random.randint(1, 1000000)
+    df_product.to_csv("products_" + str(random_number) + ".csv")
+    df_supplier.to_csv("suppliers_" + str(random_number) + ".csv")
+    df_specification.to_csv("specifications_" + str(random_number) + ".csv")
     print(df_product)
     print(df_supplier)
     print(df_specification)
 
-NB_PAGES = 1
 
-scrape_store(NB_PAGES, is_titles=True, is_delivery=True, is_prices=True, is_qty_sold=True, is_ratings=True,
-                 is_stores=True, is_discounts=True, is_nb_followers = True, is_name = True, is_store_no = True,
-                 is_supplier_country = True, is_opening_date = True, is_brand_name=True,
-                 is_video_memory_capacity = True, is_interface_type = True, is_cooler_type = True,
-                 is_stream_processors = True, is_chip_process = True, is_model_number = True,
-                 is_pixel_pipelines = True, is_launch_date = True, is_output_interface_type1 = True,
-                 is_output_interface_type2 = True, is_memory_interface = True)
+
+is_titles = False
+is_prices = False
+is_delivery = False
+is_qty_sold = False
+is_ratings = False
+is_stores = False
+is_discounts = False
+
+is_nb_followers = False
+is_name = False
+is_store_no = False
+is_supplier_country = False
+is_opening_date = False
+
+is_brand_name = False
+is_video_memory_capacity = False
+is_interface_type = False
+is_stream_processors = False
+is_chip_process = False
+is_model_number = False
+is_cooler_type = False
+is_pixel_pipelines = False
+is_launch_date = False
+is_output_interface_type1 = False
+is_output_interface_type2 = False
+is_memory_interface = False
+
+my_parser = argparse.ArgumentParser(description="""This is a Command line interface """)
+my_parser.add_argument('--nb_pages', help='number of pages to scrap', type=int, required=True)
+my_parser.add_argument('--Product_Table', help='Scrap Product Table', type=bool, required=False)
+my_parser.add_argument('--Product_Spec_Table', help='Scrap Product Spec Title', type=bool, required=False)
+my_parser.add_argument('--Supplier_Table', help='Scrap Supplier Table', type=bool, required=False)
+args = my_parser.parse_args()
+
+if args.Product_Table == True:
+    is_titles = True
+    is_prices = True
+    is_delivery = True
+    is_qty_sold = True
+    is_ratings = True
+    is_stores = True
+    is_discounts = True
+if args.Supplier_Table == True:
+    is_nb_followers = True
+    is_name = True
+    is_store_no = True
+    is_supplier_country = True
+    is_opening_date = True
+if args.Product_Spec_Table == True:
+    is_brand_name = True
+    is_video_memory_capacity = True
+    is_interface_type = True
+    is_stream_processors = True
+    is_chip_process = True
+    is_cooler_type = True
+    is_model_number = True
+    is_pixel_pipelines = True
+    is_launch_date = True
+    is_output_interface_type1 = True
+    is_output_interface_type2 = True
+    is_memory_interface = True
+
+
+scrape_store(args.nb_pages, is_titles, is_delivery, is_prices, is_qty_sold, is_ratings,
+                 is_stores, is_discounts, is_nb_followers, is_name, is_store_no,
+                 is_supplier_country, is_opening_date, is_brand_name,
+                 is_video_memory_capacity, is_interface_type, is_cooler_type,
+                 is_stream_processors, is_chip_process, is_model_number,
+                 is_pixel_pipelines, is_launch_date, is_output_interface_type1,
+                 is_output_interface_type2, is_memory_interface)
+
