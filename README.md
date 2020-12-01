@@ -77,12 +77,13 @@
 ###### we dealt with the mater by providing time.sleep() and WebDriverWait which provided the page with opportunity to load the elements to the page before running the script.
 
 ## Requiments:
+
 ###### pip installs:
 ###### pandas==1.1.3
 ###### selenium==3.141.0
-###### argparse== 
-###### time==
-###### random==
+###### mysql==0.0.2
+###### mysql-connector-python==8.0.22
+###### requests==2.24.0
 ###### download, unzip and install ChromeDriver - WebDriver: (more info below)
 ###### [https://sites.google.com/a/chromium.org/chromedriver/downloads]
 
