@@ -18,13 +18,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 import argparse
 import logging
 
-
 logging.basicConfig(filename='AliExpress.log',
                     format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
                     level=logging.INFO)
-
-
-
 
 # Here we import the config file
 import my_config as CFG
@@ -48,8 +44,8 @@ options.headless = CFG.HEADLESS
 # Here we disable notifications
 options.add_argument(CFG.DISABLE_NOTIFICATIONS)
 # Here we disable pictures display
-#prefs = {"profile.managed_default_content_settings.images": 2}
-#options.add_experimental_option("prefs", prefs)
+# prefs = {"profile.managed_default_content_settings.images": 2}
+# options.add_experimental_option("prefs", prefs)
 
 options.add_argument(CFG.INCOGNITO)
 
@@ -59,6 +55,7 @@ DRIVER_PATH = CFG.DRIVER_PATH
 driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
 
 logging.info("Driver successfully set up")
+
 
 def switch_proxy(proxies):
     """
@@ -95,7 +92,7 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
     """
 
     # Here we switch proxy
-    #switch_proxy(proxies)
+    # switch_proxy(proxies)
     # Here is the path of the page on which we want to scrape data
     WEBSITE_PATH = "https://fr.aliexpress.com/premium/category/205006120.html?CatId=205006120"
     # Here we maximize the window to display and scrape more content
@@ -147,7 +144,6 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
                     except Exception:
                         logging.error(f"Couldn't find product picture {row}X{col} of page {pages}")
 
-
                     # get first child window
                     chwd = driver.window_handles
 
@@ -170,15 +166,15 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
 
                     if identifier in suppliers:
                         try:
-                            element_to_hover = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='store-info-wrap']/div[1]/h3/a")))
+                            element_to_hover = WebDriverWait(driver, 20).until(
+                                EC.element_to_be_clickable((By.XPATH, "//*[@id='store-info-wrap']/div[1]/h3/a")))
                             hover = ActionChains(driver).move_to_element(element_to_hover)
                             hover.perform()
 
-                            logging.info("Successfully closed")
+                            logging.info(f"Successfully hovered while scraping {identifier}")
 
                         except Exception:
-                            print(f"Unable to hover while scraping {identifier}")
-
+                            logging.error(f"Couldn't hovered while scraping {identifier}")
 
                 try:
                     if identifier in suppliers or identifier in reviews:
@@ -187,23 +183,32 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
                         time.sleep(3)
                         my_list.append(element.text)
 
+                        logging.info(f"Found element {row}X{col} of page {pages} while scraping {identifier}")
+
                     elif identifier in products:
                         element = WebDriverWait(driver, 50).until(EC.element_to_be_clickable((By.XPATH,
-                                                                                              '//*[@id="root"]/div/div/div[2]/div[2]/div/div[2]/ul/div[' + str(row) + ']/li[' + str(col) + my_path)))
+                                                                                              '//*[@id="root"]/div'
+                                                                                              '/div/div[2]/div['
+                                                                                              '2]/div/div[2]/ul/div['
+                                                                                              + str(
+                                                                                                  row) + ']/li[' + str(
+                                                                                                  col) + my_path)))
                         driver.execute_script("arguments[0].scrollIntoView(true);", element)
                         time.sleep(3)
                         my_list.append(element.text)
                         time.sleep(3)
                         my_list.append(element.text)
-                    print(f"Found element {row}X{col} of page {pages} while scraping {identifier}")
-                    print("The element is", element.text)
+
+                        logging.info(f"Found element {row}X{col} of page {pages} while scraping {identifier}")
+
                 except Exception:
-                    print(f"Couldn't find element {row}X{col} of page {pages} while scraping {identifier}")
+
                     my_list.append(None)
+                    logging.error(f"Couldn't find element {row}X{col} of page {pages} while scraping {identifier}")
 
                 if identifier in suppliers or identifier in reviews:
 
-                    #driver.close()
+                    # driver.close()
                     driver.switch_to.window(p)
 
                     time.sleep(3)
@@ -215,28 +220,29 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
                                                                   "div[2]/div/a")))
                         close_popup.click()
                     except TimeoutException:
-                        pass
+                        logging.error(f"Couldnt' find element {row}X{col} of page {pages} while scraping {identifier}")
 
             driver.execute_script("window.scrollTo(0, -document.body.scrollHeight);")
 
         time.sleep(5)
         try:
             # Here we go to the next page
-            page_number = WebDriverWait(driver, 50).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div[2]/div[2]/div/div[3]/div/div[1]/div/div/button[' + str(pages) + ']')))
-            #driver.execute_script("arguments[0].scrollIntoView(true);", page_number)
+            page_number = WebDriverWait(driver, 50).until(EC.element_to_be_clickable((By.XPATH,
+                                                                                      '//*[@id="root"]/div/div/div[2]/div[2]/div/div[3]/div/div[1]/div/div/button[' + str(
+                                                                                          pages) + ']')))
+            # driver.execute_script("arguments[0].scrollIntoView(true);", page_number)
             page_number.click()
+            logging.info(f"Successfully went to next page")
+
         except Exception:
-            print("Couldn't reach the page button")
+            logging.error(f"Couldn't go to next page")
             break
 
 
-
 def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, is_qty_sold=False, is_ratings=False,
-                 is_stores=False, is_discounts=False, is_nb_followers = False, is_name = False, is_store_no = False,
-                 is_supplier_country = False, is_opening_date = False, is_reviews_1_stars=False, is_reviews_2_stars=False,
+                 is_stores=False, is_discounts=False, is_nb_followers=False, is_name=False, is_store_no=False,
+                 is_supplier_country=False, is_opening_date=False, is_reviews_1_stars=False, is_reviews_2_stars=False,
                  is_reviews_3_stars=False, is_reviews_4_stars=False, is_reviews_5_stars=False):
-
-
     # Here we initialize a list for each type of data we want to scrape on the website
 
     # Product
@@ -278,8 +284,6 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     reviews_4_stars = []
     reviews_5_stars = []
 
-
-
     # Here are the variable part of each xpath on which we will loop to obtain each item of the website
 
     # Product
@@ -313,7 +317,6 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     MEMORY_INTERFACE_PATH = '//*[@id="product-detail"]/div[2]/div/div[2]/div[4]/div/ul/li[7]/span[2]'
     """
 
-
     # Reviews
     REVIEW_1_STARS_PATH = '//*[@id="transction-feedback"]/div[2]/ul/li[5]/span[3]'
     REVIEW_2_STARS_PATH = '//*[@id="transction-feedback"]/div[2]/ul/li[4]/span[3]'
@@ -321,16 +324,13 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     REVIEW_4_STARS_PATH = '//*[@id="transction-feedback"]/div[2]/ul/li[2]/span[3]'
     REVIEW_5_STARS_PATH = '//*[@id="transction-feedback"]/div[2]/ul/li[1]/span[3]'
 
-
-
-
     IMAGE_PATH = ']/div/div[1]/div/a/img'
 
-    #Here we run the get_general_data() function on each kind of items we want to scrape from the website
+    # Here we run the get_general_data() function on each kind of items we want to scrape from the website
 
     len_product = 0
     len_supplier = 0
-    #len_specification = 0
+    # len_specification = 0
     len_reviews = 0
 
     if is_titles:
@@ -365,29 +365,24 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
         get_specific_data(NB_FOLLOWERS_PATH, nb_followers, nb_pages, 'nb_followers')
         len_supplier = len(nb_followers)
 
-
     if is_name:
         get_specific_data(NAME_PATH, name, nb_pages, 'name')
         len_supplier = len(name)
-
 
     if is_store_no:
         get_specific_data(STORE_NO_PATH, store_no, nb_pages, 'store_no')
         len_supplier = len(store_no)
 
-
     if is_supplier_country:
         get_specific_data(SUPPLIER_COUNTRY_PATH, supplier_country, nb_pages, 'supplier_country')
         len_supplier = len(supplier_country)
-
 
     if is_opening_date:
         get_specific_data(OPENING_DATE_PATH, opening_date, nb_pages, 'is_opening_date')
         len_supplier = len(opening_date)
 
-
-   ############################################################################################
-   ############################################################################################
+    ############################################################################################
+    ############################################################################################
     """
     if is_brand_name:
         get_specific_data(BRAND_NAME_PATH, brand_name, nb_pages, 'brand_name')
@@ -458,17 +453,9 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
         get_specific_data(REVIEW_5_STARS_PATH, reviews_5_stars, nb_pages, 'reviews_5_stars')
         len_reviews = len(reviews_5_stars)
 
-
-
-
-
-
-
-
     products = [titles, delivery, prices, qty_sold, ratings, stores, discounts]
     suppliers = [nb_followers, name, store_no, supplier_country, opening_date]
     reviews = [reviews_1_stars, reviews_2_stars, reviews_3_stars, reviews_4_stars, reviews_5_stars]
-
 
     PRODUCTS_SIZE = len_product
     for item in products:
@@ -491,34 +478,36 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
             item[:] = None
             item.tolist()
 
-
     # Finally, we create a pandas dataframe with the lists we created and we store it into a csv file
 
     dict_product = {
-            'titles': np.array(titles),
-            'delivery': np.array(delivery),
-            'prices': np.array(prices),
-            'qty_sold': np.array(qty_sold),
-            'ratings': np.array(ratings),
-            'stores': np.array(stores),
-            'discounts': np.array(discounts)
-            }
+        'titles': np.array(titles),
+        'delivery': np.array(delivery),
+        'prices': np.array(prices),
+        'qty_sold': np.array(qty_sold),
+        'ratings': np.array(ratings),
+        'stores': np.array(stores),
+        'discounts': np.array(discounts)
+    }
 
     df_product = pd.DataFrame.from_dict(dict_product, orient='index')
     df_product = df_product.transpose()
 
+    logging.info(f"Successfully created product dataframe")
 
     dict_supplier = {
-            'nb_followers': np.array(nb_followers),
-            'name': np.array(name),
-            'store_no': np.array(store_no),
-            'supplier_country': np.array(supplier_country),
-            'opening_date': np.array(opening_date),
+        'nb_followers': np.array(nb_followers),
+        'name': np.array(name),
+        'store_no': np.array(store_no),
+        'supplier_country': np.array(supplier_country),
+        'opening_date': np.array(opening_date),
 
-            }
+    }
 
     df_supplier = pd.DataFrame.from_dict(dict_supplier, orient='index')
     df_supplier = df_supplier.transpose()
+
+    logging.info(f"Successfully created supplier dataframe")
 
     """
     dict_specification = {
@@ -542,19 +531,18 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     """
 
     dict_reviews = {
-                'reviews_1_stars': np.array(reviews_1_stars),
-                'reviews_2_stars': np.array(reviews_2_stars),
-                'reviews_3_stars': np.array(reviews_3_stars),
-                'reviews_4_stars': np.array(reviews_4_stars),
-                'reviews_5_stars': np.array(reviews_5_stars),
+        'reviews_1_stars': np.array(reviews_1_stars),
+        'reviews_2_stars': np.array(reviews_2_stars),
+        'reviews_3_stars': np.array(reviews_3_stars),
+        'reviews_4_stars': np.array(reviews_4_stars),
+        'reviews_5_stars': np.array(reviews_5_stars),
 
-                }
+    }
 
     df_reviews = pd.DataFrame.from_dict(dict_reviews, orient='index')
     df_reviews = df_reviews.transpose()
 
-
-
+    logging.info(f"Successfully created reviews dataframe")
 
 
     random_number = np.random.randint(1, 1000000)
@@ -564,7 +552,6 @@ def scrape_store(nb_pages, is_titles=False, is_delivery=False, is_prices=False, 
     print(df_product)
     print(df_supplier)
     print(df_reviews)
-
 
 
 is_titles = False
@@ -594,6 +581,9 @@ my_parser.add_argument('--Reviews_Table', help='Scrap Reviews Title', type=bool,
 my_parser.add_argument('--Supplier_Table', help='Scrap Supplier Table', type=bool, required=False)
 args = my_parser.parse_args()
 
+
+logging.info(f"Successfully retrieved command line arguments")
+
 if args.Product_Table == True:
     is_titles = True
     is_prices = True
@@ -615,9 +605,7 @@ if args.Reviews_Table == True:
     is_reviews_4_stars = True
     is_reviews_5_stars = True
 
-
 scrape_store(args.nb_pages, is_titles, is_delivery, is_prices, is_qty_sold, is_ratings,
-                 is_stores, is_discounts, is_nb_followers, is_name, is_store_no,
-                 is_supplier_country, is_opening_date, is_reviews_1_stars, is_reviews_2_stars, is_reviews_3_stars,
-             is_reviews_4_stars ,is_reviews_5_stars)
-
+             is_stores, is_discounts, is_nb_followers, is_name, is_store_no,
+             is_supplier_country, is_opening_date, is_reviews_1_stars, is_reviews_2_stars, is_reviews_3_stars,
+             is_reviews_4_stars, is_reviews_5_stars)
