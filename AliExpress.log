@@ -1,0 +1,46 @@
+2020-12-11 00:22:40,619-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:28-Config file successfully loaded
+2020-12-11 00:22:40,620-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:33-Proxies list successfully loaded
+2020-12-11 00:22:40,620-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:40-User agent successfully set up
+2020-12-11 00:22:42,138-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:57-Driver successfully set up
+2020-12-11 00:22:42,141-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:80-switch_proxy() function successfully created
+2020-12-11 00:22:57,864-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:28-Config file successfully loaded
+2020-12-11 00:22:57,864-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:33-Proxies list successfully loaded
+2020-12-11 00:22:57,864-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:40-User agent successfully set up
+2020-12-11 00:22:59,710-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:57-Driver successfully set up
+2020-12-11 00:22:59,710-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:80-switch_proxy() function successfully created
+2020-12-11 00:23:14,820-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:28-Config file successfully loaded
+2020-12-11 00:23:14,821-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:33-Proxies list successfully loaded
+2020-12-11 00:23:14,821-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:40-User agent successfully set up
+2020-12-11 00:23:16,836-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:57-Driver successfully set up
+2020-12-11 00:23:16,836-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:80-switch_proxy() function successfully created
+2020-12-11 00:24:18,119-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:28-Config file successfully loaded
+2020-12-11 00:24:18,120-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:33-Proxies list successfully loaded
+2020-12-11 00:24:18,120-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:40-User agent successfully set up
+2020-12-11 00:24:19,492-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:57-Driver successfully set up
+2020-12-11 00:24:19,492-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:80-switch_proxy() function successfully created
+2020-12-11 00:24:59,517-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:28-Config file successfully loaded
+2020-12-11 00:24:59,517-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:33-Proxies list successfully loaded
+2020-12-11 00:24:59,517-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:40-User agent successfully set up
+2020-12-11 00:25:01,368-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:57-Driver successfully set up
+2020-12-11 00:25:01,371-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:80-switch_proxy() function successfully created
+2020-12-11 00:25:01,372-INFO-FILE:Scraping_Aliexpress.py-FUNC:<module>-LINE:585-Successfully retrieved command line arguments
+2020-12-11 00:25:04,559-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:103-Website path successfully retrieved
+2020-12-11 00:25:08,373-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:120-Popup successfully closed
+2020-12-11 00:25:14,426-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 1X1 of page 1 while scraping titles
+2020-12-11 00:25:20,483-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 1X2 of page 1 while scraping titles
+2020-12-11 00:25:26,536-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 2X1 of page 1 while scraping titles
+2020-12-11 00:25:32,588-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 2X2 of page 1 while scraping titles
+2020-12-11 00:26:27,620-ERROR-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:238-Couldn't go to next page
+2020-12-11 00:26:28,572-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:103-Website path successfully retrieved
+2020-12-11 00:26:33,051-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:120-Popup successfully closed
+2020-12-11 00:26:39,110-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 1X1 of page 1 while scraping delivery
+2020-12-11 00:26:45,160-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 1X2 of page 1 while scraping delivery
+2020-12-11 00:26:51,224-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 2X1 of page 1 while scraping delivery
+2020-12-11 00:26:57,270-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 2X2 of page 1 while scraping delivery
+2020-12-11 00:27:52,302-ERROR-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:238-Couldn't go to next page
+2020-12-11 00:27:54,060-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:103-Website path successfully retrieved
+2020-12-11 00:27:58,585-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:120-Popup successfully closed
+2020-12-11 00:28:04,650-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 1X1 of page 1 while scraping prices
+2020-12-11 00:28:10,691-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 1X2 of page 1 while scraping prices
+2020-12-11 00:28:16,751-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 2X1 of page 1 while scraping prices
+2020-12-11 00:28:22,803-INFO-FILE:Scraping_Aliexpress.py-FUNC:get_specific_data-LINE:202-Found element 2X2 of page 1 while scraping prices
