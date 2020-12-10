@@ -20,3 +20,7 @@ your_localhost = 'localhost'
 database_name = 'aliexpress'
 root = 'root'
 password = '110185'
+
+
+# API KEY
+API_KEY = "y14mkjvIp1bMRUPRs5h9LyMtpeGc2ghQ"

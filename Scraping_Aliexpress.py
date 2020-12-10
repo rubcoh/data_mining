@@ -16,19 +16,32 @@ import random
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 import argparse
+import logging
+
+
+logging.basicConfig(filename='AliExpress.log',
+                    format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
+                    level=logging.INFO)
+
 
 
 
 # Here we import the config file
 import my_config as CFG
 
+logging.info("Config file successfully loaded")
+
 # Here is a list of proxies on which we switch regularly
 proxies = CFG.PROXIES
+
+logging.info("Proxies list successfully loaded")
 
 # Here we set our browser preferences and options
 options = Options()
 # Here we setup a user-agent
 options.add_argument(CFG.USER_AGENT_PATH)
+
+logging.info("User agent successfully set up")
 
 # Here we decide whether if we run the program headless or not
 options.headless = CFG.HEADLESS
@@ -45,6 +58,7 @@ options.add_argument(CFG.INCOGNITO)
 DRIVER_PATH = CFG.DRIVER_PATH
 driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
 
+logging.info("Driver successfully set up")
 
 def switch_proxy(proxies):
     """
@@ -66,7 +80,7 @@ def switch_proxy(proxies):
     print(f"Proxy switched to {PROXY}")
 
 
-
+logging.info("switch_proxy() function successfully created")
 
 
 def get_specific_data(my_path, my_list, nb_pages, identifier):
@@ -89,6 +103,7 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
     # Here we go to the home page
     driver.get(WEBSITE_PATH)
 
+    logging.info("Website path successfully retrieved")
 
     products = ['titles', 'delivery', 'prices', 'qty_sold', 'ratings', 'stores', 'discounts']
     suppliers = ['nb_followers', 'name', 'store_no', 'supplier_country', 'opening_date']
@@ -96,7 +111,6 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
     p = driver.current_window_handle
     driver.switch_to.window(p)
 
-    #driver.execute_script("window.scrollTo(0, -document.body.scrollHeight);")
     for pages in range(1, nb_pages + 1):
         time.sleep(3)
         driver.refresh()
@@ -105,8 +119,10 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
             close_popup = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[7]/"
                                                                                                 "div[2]/div/a")))
             close_popup.click()
+
+            logging.info("Popup successfully closed")
         except TimeoutException:
-            pass
+            logging.error("Couldn't close popup")
 
         # The items are displayed in a grid of 12 rows and 5 columns
         for row in range(1, 3):
@@ -127,8 +143,9 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
                         # driver.execute_script("arguments[0].scrollIntoView(true);", button)
                         button.click()
                         time.sleep(2)
+                        logging.info("Product successfully selected")
                     except Exception:
-                        print(f"Couldn't find product picture {row}X{col}")
+                        logging.error(f"Couldn't find product picture {row}X{col} of page {pages}")
 
 
                     # get first child window
@@ -146,14 +163,19 @@ def get_specific_data(my_path, my_list, nb_pages, identifier):
                         close_popup = WebDriverWait(driver, 30).until(
                             EC.element_to_be_clickable((By.XPATH, "//*[@id='3607353940']/div/div/img")))
                         close_popup.click()
+
+                        logging.info("Popup of new tab successfully closed")
                     except TimeoutException:
-                        pass
+                        logging.error("Couldn't close popup of new tab")
 
                     if identifier in suppliers:
                         try:
                             element_to_hover = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='store-info-wrap']/div[1]/h3/a")))
                             hover = ActionChains(driver).move_to_element(element_to_hover)
                             hover.perform()
+
+                            logging.info("Successfully closed")
+
                         except Exception:
                             print(f"Unable to hover while scraping {identifier}")
 
