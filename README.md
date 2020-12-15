@@ -62,7 +62,9 @@
     output_interface_type1 = output interface 1 of the GPU
     output_interface_type2 = output interface 2 of the GPU
     memory_interface = memory interface of the GPU
-
+## Additional data
+#### We used the New York Times api to retrieve articles related to the products we scraped.
+#### The quantity of articles about a specific product allows us to determine if the product is coveted.
 ## challenges
 ###### Restriction and blockings: (multiple automated requests), 
 ###### first we used several proxies servers (A proxy server masks the true origin of the request to the resource server).
